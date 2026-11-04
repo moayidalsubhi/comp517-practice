@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>COMP517 Practice Test</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: exam-room workstation. Sticky test bar (timer + questions), then spec | editor split that stacks on phones. */
+:root {
+  --bg: #f4f6f7;
+  --panel: #ffffff;
+  --ink: #17232b;
+  --muted: #5b6b75;
+  --line: #d6dde1;
+  --accent: #0b6e72;
+  --accent-ink: #ffffff;
+  --accent-soft: #e0f0f0;
+  --code-bg: #f0f3f4;
+  --editor-bg: #fbfcfc;
+  --gutter: #8b989f;
+  --ok: #1d7a3a;
+  --ok-soft: #e3f3e8;
+  --bad: #b3261e;
+  --bad-soft: #fbe7e5;
+  --warn: #8a5a00;
+  --warn-soft: #fff3d6;
+  --syn-kw: #8a3ffc; --syn-bi: #0b6e72; --syn-str: #a14b00; --syn-num: #b0187a; --syn-com: #6f7d85; --syn-fn: #1a5bc4;
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1619; --panel: #162126; --ink: #e3eaee; --muted: #93a3ac; --line: #2a3a42;
+    --accent: #4fb8b8; --accent-ink: #062224; --accent-soft: #173539; --code-bg: #1c2a30;
+    --editor-bg: #111b1f; --gutter: #5d6e77; --ok: #5cc27d; --ok-soft: #173326; --bad: #f08a80;
+    --bad-soft: #3a1d1b; --warn: #e6b04d; --warn-soft: #3a2e14; --syn-kw: #c7a2ff; --syn-bi: #5fd0c8; --syn-str: #f0b072; --syn-num: #f08fc7; --syn-com: #7f9099; --syn-fn: #8ab8ff; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1619; --panel: #162126; --ink: #e3eaee; --muted: #93a3ac; --line: #2a3a42;
+  --accent: #4fb8b8; --accent-ink: #062224; --accent-soft: #173539; --code-bg: #1c2a30;
+  --editor-bg: #111b1f; --gutter: #5d6e77; --ok: #5cc27d; --ok-soft: #173326; --bad: #f08a80;
+  --bad-soft: #3a1d1b; --warn: #e6b04d; --warn-soft: #3a2e14; --syn-kw: #c7a2ff; --syn-bi: #5fd0c8; --syn-str: #f0b072; --syn-num: #f08fc7; --syn-com: #7f9099; --syn-fn: #8ab8ff; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
+code, pre, textarea { font-family: var(--font-mono); }
+button { font: inherit; cursor: pointer; }
+button:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); }
+.bar-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1400px; margin: 0 auto; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 19px; letter-spacing: 0.01em; margin-right: auto; }
+.brand small { font-family: var(--font-body); font-weight: 400; font-size: 13px; color: var(--muted); margin-left: 6px; }
+.mock-pick { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+select { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+.timer { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 22px; font-weight: 600; padding: 2px 12px; border-radius: 6px; background: var(--code-bg); min-width: 96px; text-align: center; }
+.timer.low { background: var(--warn-soft); color: var(--warn); }
+.timer.out { background: var(--bad-soft); color: var(--bad); }
+.btn { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 6px; padding: 7px 14px; font-weight: 500; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 10px; max-width: 1400px; margin: 0 auto; }
+.tab { border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 6px; padding: 6px 12px; display: flex; gap: 8px; align-items: center; font-size: 14px; }
+.tab[aria-selected="true"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 600; }
+.tab .pts { font-size: 12px; color: var(--muted); font-weight: 400; }
+.tab .state { font-size: 12px; padding: 0 6px; border-radius: 10px; background: var(--code-bg); color: var(--muted); font-weight: 500; }
+.tab .state.in { background: var(--ok-soft); color: var(--ok); }
+
+main { max-width: 1400px; margin: 0 auto; padding-block: 16px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.notice { background: var(--warn-soft); color: var(--ink); border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: 6px; padding: 10px 14px; margin-bottom: 14px; font-size: 14px; }
+.notice.info { background: var(--accent-soft); border-left-color: var(--accent); }
+.split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-width: 0; }
+.spec { padding: 16px 20px; }
+.spec h2 { font-family: var(--font-display); font-size: 22px; margin: 0 0 2px; text-wrap: balance; }
+.spec .meta { font-size: 13px; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+.spec code { background: var(--code-bg); padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
+.spec pre { background: var(--code-bg); padding: 10px 12px; border-radius: 6px; overflow-x: auto; font-size: 13.5px; }
+.spec table { border-collapse: collapse; margin: 8px 0; font-size: 14px; }
+.spec td, .spec th { border: 1px solid var(--line); padding: 4px 10px; text-align: left; }
+.spec th { background: var(--code-bg); }
+.spec li { margin: 4px 0; }
+
+.work { display: flex; flex-direction: column; }
+.work-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+.work-head .file { font-family: var(--font-mono); color: var(--ink); }
+.editor { display: flex; background: var(--editor-bg); min-height: 340px; max-height: 62vh; overflow: auto; }
+.gutter { padding: 12px 8px 12px 12px; text-align: right; color: var(--gutter); font-family: var(--font-mono); font-size: 14px; line-height: 21px; user-select: none; white-space: pre; font-variant-numeric: tabular-nums; flex: none; }
+.layer { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(100%, max-content); }
+.layer > * { grid-area: 1 / 1; margin: 0; border: 0; font-family: var(--font-mono); font-size: 14px; line-height: 21px; padding: 12px 12px 12px 6px; white-space: pre; tab-size: 4; letter-spacing: normal; min-height: 340px; }
+.hl { color: var(--ink); pointer-events: none; }
+.editor textarea { resize: none; outline: none; background: transparent; color: transparent; caret-color: var(--ink); overflow: hidden; -webkit-text-fill-color: transparent; }
+.editor textarea::selection { background: var(--accent-soft); -webkit-text-fill-color: transparent; }
+.k { color: var(--syn-kw); font-weight: 600; } .b { color: var(--syn-bi); } .s { color: var(--syn-str); }
+.n { color: var(--syn-num); } .c { color: var(--syn-com); font-style: italic; } .f { color: var(--syn-fn); font-weight: 600; }
+.editor:focus-within { box-shadow: inset 0 0 0 2px var(--accent); }
+.io { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 0; border-top: 1px solid var(--line); }
+@media (max-width: 600px) { .io { grid-template-columns: minmax(0, 1fr); } }
+.io > div { padding: 10px 12px; min-width: 0; }
+.io > div + div { border-left: 1px solid var(--line); }
+@media (max-width: 600px) { .io > div + div { border-left: 0; border-top: 1px solid var(--line); } }
+.io label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 4px; }
+.io textarea { width: 100%; min-height: 96px; resize: vertical; border: 1px solid var(--line); border-radius: 6px; background: var(--editor-bg); color: var(--ink); padding: 6px 8px; font-size: 13.5px; }
+.console { margin: 0; min-height: 96px; max-height: 260px; overflow: auto; background: var(--code-bg); border-radius: 6px; padding: 6px 8px; font-size: 13.5px; white-space: pre-wrap; word-break: break-word; }
+.console .err { color: var(--bad); }
+.console .dim { color: var(--muted); }
+.actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 12px; border-top: 1px solid var(--line); }
+.actions .hint { font-size: 13px; color: var(--muted); margin-left: auto; }
+.confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+
+.results h2 { font-family: var(--font-display); font-size: 26px; margin: 0 0 4px; }
+.score-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0 18px; }
+.score { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; min-width: 150px; }
+.score .num { font-family: var(--font-display); font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.score .l { font-size: 13px; color: var(--muted); }
+.score.total { border-color: var(--accent); background: var(--accent-soft); }
+.qres { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 14px; }
+.qres > header { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; padding: 10px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.qres h3 { margin: 0; font-family: var(--font-display); font-size: 18px; }
+.qres .sub { font-size: 13px; color: var(--muted); }
+.tests { overflow-x: auto; }
+.tests table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+.tests th, .tests td { border-bottom: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+.tests th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 500; }
+.tests td pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: 13px; }
+.pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 10px; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+details { padding: 8px 14px 12px; border-top: 1px solid var(--line); }
+summary { cursor: pointer; font-weight: 500; font-size: 14px; }
+details pre { background: var(--code-bg); padding: 10px 12px; border-radius: 6px; overflow-x: auto; font-size: 13.5px; }
+.loading { color: var(--muted); font-size: 14px; }
+.foot { font-size: 13px; color: var(--muted); margin-top: 18px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="bar">
+  <div class="bar-inner">
+    <div class="brand">COMP517 Practice Test <small>class-test simulator · 3 questions · 40 min</small></div>
+    <div class="mock-pick"><label for="mock">Paper</label><select id="mock"></select></div>
+    <div class="timer" id="timer" aria-live="off">40:00</div>
+    <button class="btn primary" id="startBtn">Start test</button>
+    <span id="endWrap"><button class="btn" id="endBtn">End test</button></span>
+  </div>
+  <div class="tabs" role="tablist" id="tabs"></div>
+</div>
+
+<main id="main">
+  <div class="notice info" id="intro">
+    <strong>How this works (like the real test):</strong> press <strong>Start test</strong> for a 40-minute timer. <strong>Run</strong> shows only your output, not whether it's right. <strong>Hand in</strong> saves that version; you can hand in again as often as you like. At the end only your <em>handed-in</em> code is marked against the hidden tests, 33 points per question. Exact output matters. Your drafts are kept in this browser.
+  </div>
+  <div class="notice" id="engineNote"><span class="loading">Loading Python in your browser (first time takes a few seconds)…</span></div>
+  <section id="testView" class="split">
+    <article class="card spec" id="spec"></article>
+    <div class="card work">
+      <div class="work-head"><span class="file" id="fileName">q1.py</span><span id="savedNote">Draft saved in this browser</span></div>
+      <div class="editor" id="editorBox"><div class="gutter" id="gutter">1</div><div class="layer"><pre class="hl" id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Your code"></textarea></div></div>
+      <div class="io">
+        <div><label for="stdin">Input (one line per input() call)</label><textarea id="stdin" spellcheck="false"></textarea></div>
+        <div><label for="console">Output</label><pre class="console" id="console"><span class="dim">Press Run to see your output.</span></pre></div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="runBtn" disabled>Run</button>
+        <button class="btn primary" id="handBtn">Hand in</button>
+        <span class="hint" id="handNote">Not handed in yet</span>
+      </div>
+    </div>
+  </section>
+  <section id="resultView" class="results" hidden></section>
+  <p class="foot">An infinite loop (one that never asks for input and never ends) will freeze this tab; your draft is saved as you type, so just reload. Tab indents 4 spaces, Shift+Tab un-indents, and Enter keeps the indent.</p>
+</main>
+
+<script type="application/json" id="mockData">[{"id": "mock1", "name": "Mock 1", "questions": [{"title": "Grade bands", "kind": "program", "spec": "<p>Read a single whole-number mark from the user with <code>input()<\/code> (<strong>no prompt text<\/strong>). Print exactly one of:<\/p>\n<table><tr><th>Mark<\/th><th>Print<\/th><\/tr>\n<tr><td>below 0 or above 100<\/td><td><code>Invalid<\/code><\/td><\/tr>\n<tr><td>70 to 100<\/td><td><code>Distinction<\/code><\/td><\/tr>\n<tr><td>60 to 69<\/td><td><code>Merit<\/code><\/td><\/tr>\n<tr><td>50 to 59<\/td><td><code>Pass<\/code><\/td><\/tr>\n<tr><td>0 to 49<\/td><td><code>Fail<\/code><\/td><\/tr><\/table>\n<p>Example: input <code>65<\/code> → output <code>Merit<\/code>.<\/p>", "stub": "# Read a mark and print its grade band.\n", "sample_input": "65", "solution": "mark = int(input())\nif mark < 0 or mark > 100:      # check invalid FIRST\n    print(\"Invalid\")\nelif mark >= 70:\n    print(\"Distinction\")\nelif mark >= 60:\n    print(\"Merit\")\nelif mark >= 50:\n    print(\"Pass\")\nelse:\n    print(\"Fail\")\n", "tests": [{"stdin": "65\n", "expect": "Merit\n"}, {"stdin": "70\n", "expect": "Distinction\n"}, {"stdin": "100\n", "expect": "Distinction\n"}, {"stdin": "69\n", "expect": "Merit\n"}, {"stdin": "60\n", "expect": "Merit\n"}, {"stdin": "59\n", "expect": "Pass\n"}, {"stdin": "50\n", "expect": "Pass\n"}, {"stdin": "49\n", "expect": "Fail\n"}, {"stdin": "0\n", "expect": "Fail\n"}, {"stdin": "-1\n", "expect": "Invalid\n"}, {"stdin": "101\n", "expect": "Invalid\n"}]}, {"title": "Second largest", "kind": "function", "spec": "<p>Write a function <code>second_largest(values)<\/code> that <strong>returns<\/strong> the second largest <strong>distinct<\/strong> value in the list <code>values<\/code>.<\/p>\n<ul><li><code>second_largest([4, 9, 2, 9, 7])<\/code> returns <code>7<\/code> (the two 9s count once).<\/li>\n<li>If there are fewer than two distinct values, return <code>None<\/code>: <code>second_largest([5, 5])<\/code> and <code>second_largest([])<\/code> both return <code>None<\/code>.<\/li>\n<li>Values may be negative.<\/li>\n<li>Do not change the list that is passed in.<\/li><\/ul>", "stub": "def second_largest(values):\n    \"\"\"Return the second largest distinct value in values, or None.\"\"\"\n    pass\n", "sample_input": "", "solution": "def second_largest(values):\n    \"\"\"Return the second largest distinct value in values, or None.\"\"\"\n    distinct = sorted(set(values))      # new list: the original isn't changed\n    if len(distinct) < 2:\n        return None\n    return distinct[-2]\n", "tests": [{"call": "second_largest([4, 9, 2, 9, 7])", "expect": "7"}, {"call": "second_largest([1, 2])", "expect": "1"}, {"call": "second_largest([2, 1])", "expect": "1"}, {"call": "second_largest([5, 5])", "expect": "None"}, {"call": "second_largest([])", "expect": "None"}, {"call": "second_largest([8])", "expect": "None"}, {"call": "second_largest([-3, -1, -7])", "expect": "-3"}, {"call": "second_largest([10, 10, 9, 9])", "expect": "9"}, {"label": "list is not changed", "check": "data = [3, 1, 2]\nsecond_largest(data)\nok = data == [3, 1, 2]\ngot = repr(data)", "expect": "[3, 1, 2]"}]}, {"title": "Stock control", "kind": "function", "spec": "<p>A stock dictionary maps an item name (string) to a quantity (int). Write two functions.<\/p>\n<ol><li><code>restock(stock, deliveries)<\/code>: <code>deliveries<\/code> is a list of <code>(item, quantity)<\/code> tuples. Add each quantity to the stock dictionary, <strong>creating the item if it isn't there yet<\/strong>. Update the dictionary in place <strong>and<\/strong> return it.<br>\n<code>restock({\"pen\": 3}, [(\"pen\", 2), (\"ink\", 5), (\"pen\", 1)])<\/code> returns <code>{\"pen\": 6, \"ink\": 5}<\/code>.<\/li>\n<li><code>low_stock(stock, limit)<\/code>: return a list of the item names whose quantity is <strong>less than<\/strong> <code>limit<\/code>, <strong>sorted alphabetically<\/strong>.<br>\n<code>low_stock({\"pen\": 6, \"ink\": 2, \"cap\": 0}, 3)<\/code> returns <code>[\"cap\", \"ink\"]<\/code>.<\/li><\/ol>", "stub": "def restock(stock, deliveries):\n    \"\"\"Add each (item, quantity) delivery to stock and return stock.\"\"\"\n    pass\n\n\ndef low_stock(stock, limit):\n    \"\"\"Return the alphabetically sorted items with quantity below limit.\"\"\"\n    pass\n", "sample_input": "", "solution": "def restock(stock, deliveries):\n    \"\"\"Add each (item, quantity) delivery to stock and return stock.\"\"\"\n    for item, quantity in deliveries:\n        stock[item] = stock.get(item, 0) + quantity\n    return stock\n\n\ndef low_stock(stock, limit):\n    \"\"\"Return the alphabetically sorted items with quantity below limit.\"\"\"\n    low = []\n    for item, quantity in stock.items():\n        if quantity < limit:\n            low.append(item)\n    return sorted(low)\n", "tests": [{"call": "restock({\"pen\": 3}, [(\"pen\", 2), (\"ink\", 5), (\"pen\", 1)])", "expect": "{\"pen\": 6, \"ink\": 5}"}, {"label": "restock changes the dictionary in place", "check": "stock = {\"pen\": 3}\nrestock(stock, [(\"pen\", 2), (\"ink\", 5)])\nok = stock == {\"pen\": 5, \"ink\": 5}\ngot = repr(stock)", "expect": "{'pen': 5, 'ink': 5}"}, {"call": "restock({}, [])", "expect": "{}"}, {"call": "restock({}, [(\"a\", 1)])", "expect": "{\"a\": 1}"}, {"call": "low_stock({\"pen\": 6, \"ink\": 2, \"cap\": 0}, 3)", "expect": "[\"cap\", \"ink\"]"}, {"call": "low_stock({\"a\": 3, \"b\": 4}, 3)", "expect": "[]"}, {"call": "low_stock({}, 5)", "expect": "[]"}, {"call": "low_stock({\"zip\": 1, \"bag\": 0, \"map\": 9}, 5)", "expect": "[\"bag\", \"zip\"]"}]}]}, {"id": "mock2", "name": "Mock 2", "questions": [{"title": "Reading statistics", "kind": "program", "spec": "<p>Read lines with <code>input()<\/code> (<strong>no prompt text<\/strong>) until the user types <code>done<\/code>. Every other line is a number, possibly with a decimal point. Then print exactly three lines:<\/p>\n<pre>Count: &lt;how many numbers&gt;\nAverage: &lt;mean, 2 decimal places&gt;\nHighest: &lt;largest number, 2 decimal places&gt;<\/pre>\n<p>If <code>done<\/code> is the very first line, print only <code>No numbers<\/code>.<\/p>\n<p>Example: inputs <code>4<\/code>, <code>10.5<\/code>, <code>-2<\/code>, <code>done<\/code> →<\/p>\n<pre>Count: 3\nAverage: 4.17\nHighest: 10.50<\/pre>", "stub": "# Read numbers until \"done\", then print the statistics.\n", "sample_input": "4\n10.5\n-2\ndone", "solution": "total = 0\ncount = 0\nhighest = None\nwhile True:\n    line = input()\n    if line == \"done\":\n        break\n    number = float(line)\n    total += number\n    count += 1\n    if highest is None or number > highest:\n        highest = number\n\nif count == 0:\n    print(\"No numbers\")\nelse:\n    print(f\"Count: {count}\")\n    print(f\"Average: {total / count:.2f}\")\n    print(f\"Highest: {highest:.2f}\")\n", "tests": [{"stdin": "4\n10.5\n-2\ndone\n", "expect": "Count: 3\nAverage: 4.17\nHighest: 10.50\n"}, {"stdin": "done\n", "expect": "No numbers\n"}, {"stdin": "7\ndone\n", "expect": "Count: 1\nAverage: 7.00\nHighest: 7.00\n"}, {"stdin": "-5\n-1.5\ndone\n", "expect": "Count: 2\nAverage: -3.25\nHighest: -1.50\n"}, {"stdin": "1\n2\n3\n4\ndone\n", "expect": "Count: 4\nAverage: 2.50\nHighest: 4.00\n"}]}, {"title": "Vowel counter", "kind": "function", "spec": "<p>Write <code>count_vowels(text)<\/code> that <strong>returns<\/strong> a dictionary with the keys <code>\"a\"<\/code>, <code>\"e\"<\/code>, <code>\"i\"<\/code>, <code>\"o\"<\/code>, <code>\"u\"<\/code> (in that order) and the number of times each appears in <code>text<\/code>. Upper and lower case count the same. Every key must be present, even if its count is 0.<\/p>\n<p><code>count_vowels(\"Hello World\")<\/code> returns <code>{\"a\": 0, \"e\": 1, \"i\": 0, \"o\": 2, \"u\": 0}<\/code>.<\/p>", "stub": "def count_vowels(text):\n    \"\"\"Return a dict of how many times each vowel a, e, i, o, u appears in text.\"\"\"\n    pass\n", "sample_input": "", "solution": "def count_vowels(text):\n    \"\"\"Return a dict of how many times each vowel a, e, i, o, u appears in text.\"\"\"\n    counts = {\"a\": 0, \"e\": 0, \"i\": 0, \"o\": 0, \"u\": 0}   # every key present from the start\n    for ch in text.lower():\n        if ch in counts:\n            counts[ch] += 1\n    return counts\n", "tests": [{"call": "count_vowels('Hello World')", "expect": "{\"a\": 0, \"e\": 1, \"i\": 0, \"o\": 2, \"u\": 0}"}, {"call": "count_vowels('')", "expect": "{\"a\": 0, \"e\": 0, \"i\": 0, \"o\": 0, \"u\": 0}"}, {"call": "count_vowels('AEIOU aeiou')", "expect": "{\"a\": 2, \"e\": 2, \"i\": 2, \"o\": 2, \"u\": 2}"}, {"call": "count_vowels('rhythm')", "expect": "{\"a\": 0, \"e\": 0, \"i\": 0, \"o\": 0, \"u\": 0}"}, {"call": "count_vowels('Banana Split!')", "expect": "{\"a\": 3, \"e\": 0, \"i\": 1, \"o\": 0, \"u\": 0}"}, {"label": "keys are in the order a, e, i, o, u", "check": "got = list(count_vowels(\"uoiea\"))\nok = got == [\"a\", \"e\", \"i\", \"o\", \"u\"]", "expect": "['a', 'e', 'i', 'o', 'u']"}]}, {"title": "Grid totals", "kind": "function", "spec": "<p>A grid is a list of rows; each row is a list of numbers, and all rows have the same length. Write two functions.<\/p>\n<ol><li><code>column_totals(grid)<\/code> returns a list with the total of each column. An empty grid (<code>[]<\/code>) returns <code>[]<\/code>.<br>\n<code>column_totals([[1, 2, 3], [4, 5, 6]])<\/code> returns <code>[5, 7, 9]<\/code>.<\/li>\n<li><code>best_row(grid)<\/code> returns the <strong>index<\/strong> of the row with the largest total. If two rows tie, return the <strong>first<\/strong> one. An empty grid returns <code>None<\/code>.<br>\n<code>best_row([[1, 2], [5, 0], [3, 2]])<\/code> returns <code>1<\/code> (totals 3, 5, 5: row 1 comes first).<\/li><\/ol>", "stub": "def column_totals(grid):\n    \"\"\"Return a list of the total of each column in grid.\"\"\"\n    pass\n\n\ndef best_row(grid):\n    \"\"\"Return the index of the row with the largest total, or None if grid is empty.\"\"\"\n    pass\n", "sample_input": "", "solution": "def column_totals(grid):\n    \"\"\"Return a list of the total of each column in grid.\"\"\"\n    if len(grid) == 0:\n        return []\n    totals = [0] * len(grid[0])\n    for row in grid:\n        for c in range(len(row)):\n            totals[c] += row[c]\n    return totals\n\n\ndef best_row(grid):\n    \"\"\"Return the index of the row with the largest total, or None if grid is empty.\"\"\"\n    best = None\n    for i in range(len(grid)):\n        if best is None or sum(grid[i]) > sum(grid[best]):   # > keeps the FIRST on a tie\n            best = i\n    return best\n", "tests": [{"call": "column_totals([[1, 2, 3], [4, 5, 6]])", "expect": "[5, 7, 9]"}, {"call": "column_totals([])", "expect": "[]"}, {"call": "column_totals([[7]])", "expect": "[7]"}, {"call": "column_totals([[1, -1], [2, -2], [3, 0]])", "expect": "[6, -3]"}, {"call": "best_row([[1, 2], [5, 0], [3, 2]])", "expect": "1"}, {"call": "best_row([])", "expect": "None"}, {"call": "best_row([[4]])", "expect": "0"}, {"call": "best_row([[-5, -5], [-1, -2]])", "expect": "1"}, {"call": "best_row([[2, 2], [1, 3]])", "expect": "0"}]}]}, {"id": "mock3", "name": "Mock 3", "questions": [{"title": "FizzBuzz to n", "kind": "program", "spec": "<p>Read a whole number <code>n<\/code> with <code>input()<\/code> (<strong>no prompt text<\/strong>). For every number from 1 to <code>n<\/code> (inclusive), print one line:<\/p>\n<ul><li><code>FizzBuzz<\/code> if it is divisible by both 3 and 5,<\/li>\n<li><code>Fizz<\/code> if it is divisible by 3 only,<\/li>\n<li><code>Buzz<\/code> if it is divisible by 5 only,<\/li>\n<li>otherwise the number itself.<\/li><\/ul>\n<p>If <code>n<\/code> is 0 or negative, print nothing. Example: input <code>5<\/code> →<\/p>\n<pre>1\n2\nFizz\n4\nBuzz<\/pre>", "stub": "# Read n and print the FizzBuzz lines from 1 to n.\n", "sample_input": "5", "solution": "n = int(input())\nfor i in range(1, n + 1):\n    if i % 15 == 0:                 # most specific case first\n        print(\"FizzBuzz\")\n    elif i % 3 == 0:\n        print(\"Fizz\")\n    elif i % 5 == 0:\n        print(\"Buzz\")\n    else:\n        print(i)\n", "tests": [{"stdin": "5\n", "expect": "1\n2\nFizz\n4\nBuzz\n"}, {"stdin": "15\n", "expect": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n"}, {"stdin": "1\n", "expect": "1\n"}, {"stdin": "0\n", "expect": ""}, {"stdin": "-3\n", "expect": ""}, {"stdin": "16\n", "expect": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n16\n"}]}, {"title": "Palindrome check", "kind": "function", "spec": "<p>Write <code>is_palindrome(text)<\/code> that <strong>returns<\/strong> <code>True<\/code> if <code>text<\/code> reads the same forwards and backwards, and <code>False<\/code> otherwise.<\/p>\n<ul><li>Ignore upper/lower case.<\/li>\n<li>Ignore every character that isn't a letter or a digit (spaces, punctuation).<\/li>\n<li>An empty string, or one with no letters or digits, counts as a palindrome.<\/li><\/ul>\n<p><code>is_palindrome(\"Never odd or even\")<\/code> returns <code>True<\/code>; <code>is_palindrome(\"Python\")<\/code> returns <code>False<\/code>.<\/p>", "stub": "def is_palindrome(text):\n    \"\"\"Return True if text is a palindrome, ignoring case and non-alphanumeric characters.\"\"\"\n    pass\n", "sample_input": "", "solution": "def is_palindrome(text):\n    \"\"\"Return True if text is a palindrome, ignoring case and non-alphanumeric characters.\"\"\"\n    cleaned = \"\"\n    for ch in text.lower():\n        if ch.isalnum():\n            cleaned += ch\n    return cleaned == cleaned[::-1]\n", "tests": [{"call": "is_palindrome('Never odd or even')", "expect": "True"}, {"call": "is_palindrome('Python')", "expect": "False"}, {"call": "is_palindrome('')", "expect": "True"}, {"call": "is_palindrome('A man, a plan, a canal: Panama!')", "expect": "True"}, {"call": "is_palindrome('12321')", "expect": "True"}, {"call": "is_palindrome('12 3 4')", "expect": "False"}, {"call": "is_palindrome('ab')", "expect": "False"}, {"call": "is_palindrome('?!')", "expect": "True"}, {"call": "is_palindrome('Noon')", "expect": "True"}]}, {"title": "Team scores", "kind": "function", "spec": "<p>Results are a list of <code>(team, score)<\/code> tuples, e.g. <code>[(\"Red\", 7), (\"Blue\", 5), (\"Red\", 9)]<\/code>. Write two functions.<\/p>\n<ol><li><code>team_averages(results)<\/code> returns a dictionary mapping each team to its average score <strong>rounded to 1 decimal place<\/strong> (use <code>round<\/code>). Teams appear in the order they are first seen.<br>\n<code>team_averages([(\"Red\", 7), (\"Blue\", 5), (\"Red\", 9)])<\/code> returns <code>{\"Red\": 8.0, \"Blue\": 5.0}<\/code>.<\/li>\n<li><code>top_team(results)<\/code> returns the name of the team with the highest average. If two teams tie, return the one seen <strong>first<\/strong>. An empty list returns <code>None<\/code>.<br>\n<code>top_team([(\"Red\", 7), (\"Blue\", 5), (\"Red\", 9)])<\/code> returns <code>\"Red\"<\/code>.<\/li><\/ol>", "stub": "def team_averages(results):\n    \"\"\"Return a dict of each team's average score, rounded to 1 decimal place.\"\"\"\n    pass\n\n\ndef top_team(results):\n    \"\"\"Return the team with the highest average, or None if there are no results.\"\"\"\n    pass\n", "sample_input": "", "solution": "def team_averages(results):\n    \"\"\"Return a dict of each team's average score, rounded to 1 decimal place.\"\"\"\n    totals = {}\n    counts = {}\n    for team, score in results:\n        totals[team] = totals.get(team, 0) + score\n        counts[team] = counts.get(team, 0) + 1\n    averages = {}\n    for team in totals:\n        averages[team] = round(totals[team] / counts[team], 1)\n    return averages\n\n\ndef top_team(results):\n    \"\"\"Return the team with the highest average, or None if there are no results.\"\"\"\n    averages = team_averages(results)\n    best = None\n    for team in averages:\n        if best is None or averages[team] > averages[best]:   # > keeps the first on a tie\n            best = team\n    return best\n", "tests": [{"call": "team_averages([(\"Red\", 7), (\"Blue\", 5), (\"Red\", 9)])", "expect": "{\"Red\": 8.0, \"Blue\": 5.0}"}, {"call": "team_averages([])", "expect": "{}"}, {"call": "team_averages([(\"A\", 1), (\"A\", 2), (\"A\", 4)])", "expect": "{\"A\": 2.3}"}, {"call": "team_averages([(\"X\", 10), (\"Y\", 3), (\"X\", 3), (\"Y\", 4)])", "expect": "{\"X\": 6.5, \"Y\": 3.5}"}, {"label": "teams in first-seen order", "check": "got = list(team_averages([(\"Zed\", 1), (\"Amy\", 2), (\"Zed\", 3)]))\nok = got == [\"Zed\", \"Amy\"]", "expect": "['Zed', 'Amy']"}, {"call": "top_team([(\"Red\", 7), (\"Blue\", 5), (\"Red\", 9)])", "expect": "\"Red\""}, {"call": "top_team([])", "expect": "None"}, {"call": "top_team([(\"A\", 4), (\"B\", 6), (\"A\", 8)])", "expect": "\"A\""}, {"call": "top_team([(\"A\", -2), (\"B\", -1)])", "expect": "\"B\""}]}]}]</script>
+<script type="text/python" id="harness">
+import json
+import sys
+
+
+class _Out:
+    def __init__(self):
+        self.parts = []
+
+    def write(self, s):
+        self.parts.append(str(s))
+        return len(str(s))
+
+    def flush(self):
+        pass
+
+
+def _describe(e, src):
+    name = type(e).__name__
+    line = getattr(e, "lineno", None) if isinstance(e, SyntaxError) else None
+    if line is None:
+        tb = e.__traceback__
+        while tb is not None:
+            if tb.tb_frame.f_code.co_filename == "<your code>":
+                line = tb.tb_lineno
+            tb = tb.tb_next
+    msg = str(e.msg) if isinstance(e, SyntaxError) and getattr(e, "msg", None) else str(e)
+    where = f"line {line}: " if line else ""
+    return f"{where}{name}: {msg}" if msg else f"{where}{name}"
+
+
+def _execute(src, stdin_text, module_name):
+    lines = stdin_text.split("\n")
+    if lines and lines[-1] == "":
+        lines.pop()
+    pos = [0]
+    out = _Out()
+
+    def fake_input(prompt=""):
+        out.write(str(prompt))
+        if pos[0] >= len(lines):
+            raise EOFError("EOF when reading a line (the program asked for more input than it was given)")
+        value = lines[pos[0]]
+        pos[0] += 1
+        return value
+
+    ns = {"__name__": module_name, "input": fake_input}
+    old = sys.stdout
+    sys.stdout = out
+    err = None
+    try:
+        exec(compile(src, "<your code>", "exec"), ns)
+    except BaseException as e:      # report everything, including SystemExit
+        err = _describe(e, src)
+    finally:
+        sys.stdout = old
+    return ns, "".join(out.parts), err
+
+
+def py_run(src, stdin_text):
+    """Run code like 'Check your answer': return its output (and any error)."""
+    _, out, err = _execute(src, stdin_text, "__main__")
+    return json.dumps({"out": out, "err": err})
+
+
+def _same(result, expected):
+    if expected is None:
+        return result is None
+    if isinstance(expected, bool):
+        return result is expected
+    return result == expected
+
+
+def py_grade(src, kind, tests_json):
+    """Run the hidden tests; return a JSON list of {ok, label, expect, got}."""
+    tests = json.loads(tests_json)
+    results = []
+    for t in tests:
+        if kind == "program":
+            _, out, err = _execute(src, t["stdin"], "__main__")
+            got = out + (("\n" if out and not out.endswith("\n") else "") + "Error " + err if err else "")
+            results.append({"ok": err is None and out == t["expect"], "label": "input:\n" + t["stdin"],
+                            "expect": t["expect"], "got": got})
+            continue
+        ns, out, err = _execute(src, "", "submission")
+        label = t.get("label") or t["call"]
+        if err:
+            results.append({"ok": False, "label": label, "expect": t["expect"],
+                            "got": "Your file stopped with an error when it was loaded: " + err})
+            continue
+        try:
+            if "check" in t:
+                env = dict(ns)
+                old = sys.stdout
+                sys.stdout = _Out()
+                try:
+                    exec(t["check"], env)
+                finally:
+                    sys.stdout = old
+                ok = bool(env.get("ok"))
+                got = env.get("got", "")
+            else:
+                old = sys.stdout
+                sys.stdout = _Out()
+                try:
+                    result = eval(t["call"], ns)
+                finally:
+                    sys.stdout = old
+                expected = eval(t["expect"])
+                ok = _same(result, expected)
+                got = repr(result)
+                t = dict(t, expect=repr(expected))
+        except BaseException as e:
+            ok = False
+            got = f"{type(e).__name__}: {e}"
+        results.append({"ok": ok, "label": label, "expect": t["expect"], "got": got})
+    return json.dumps(results)
+
+
+try:
+    from browser import window
+    window.pyRun = py_run
+    window.pyGrade = py_grade
+    window.pyReady()
+except ImportError:
+    pass
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/brython@3.13.1/brython.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/brython@3.13.1/brython_stdlib.js"></script>
+<script>
+(function () {
+  const MOCKS = JSON.parse(document.getElementById("mockData").textContent);
+  const DURATION = 40 * 60 * 1000;
+  const $ = (id) => document.getElementById(id);
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem("p517:" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem("p517:" + k, JSON.stringify(v)); } catch (e) {} },
+    del(k) { try { localStorage.removeItem("p517:" + k); } catch (e) {} },
+  };
+
+  let ready = false;
+  let mockIdx = Math.min(store.get("mock", 0), MOCKS.length - 1);
+  let qIdx = 0;
+  let tick = null;
+
+  const KW = new Set("False None True and as assert break case class continue def del elif else except finally for from global if import in is lambda match nonlocal not or pass raise return try while with yield".split(" "));
+  const BI = new Set("abs all any bool chr dict enumerate filter float input int isinstance len list map max min ord print range repr reversed round set sorted str sum tuple type zip".split(" "));
+  const TOK = /(#[^\n]*)|((?:[rRbBfFuU]{1,2})?(?:"{3}[\s\S]*?(?:"{3}|$)|'{3}[\s\S]*?(?:'{3}|$)|"(?:\\.|[^"\\\n])*"?|'(?:\\.|[^'\\\n])*'?))|(\b\d+(?:\.\d+)?(?:[eE][-+]?\d+)?\b)|([A-Za-z_]\w*)/g;
+  function highlight(src) {
+    let out = "", last = 0, prev = "", m;
+    TOK.lastIndex = 0;
+    while ((m = TOK.exec(src))) {
+      out += escH(src.slice(last, m.index));
+      const t = m[0];
+      let cls = "";
+      if (m[1]) cls = "c";
+      else if (m[2]) cls = "s";
+      else if (m[3]) cls = "n";
+      else if (KW.has(t)) cls = "k";
+      else if (prev === "def") cls = "f";
+      else if (BI.has(t) && src[m.index - 1] !== ".") cls = "b";
+      out += cls ? `<span class="${cls}">${escH(t)}</span>` : escH(t);
+      if (m[4]) prev = t; else prev = "";
+      last = TOK.lastIndex;
+      if (t === "") TOK.lastIndex++;
+    }
+    return out + escH(src.slice(last));
+  }
+  function escH(s) { return s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
+  const mock = () => MOCKS[mockIdx];
+  const q = () => mock().questions[qIdx];
+  const key = (what, i = qIdx) => `${mock().id}:${what}:${i}`;
+  const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  const show = (s) => esc(s === "" ? "(nothing)" : s).replace(/ /g, "·").replace(/·/g, '<span class="dim">·</span>');
+
+  // ---------- Python engine ----------
+  window.pyReady = function () {
+    ready = true;
+    $("runBtn").disabled = false;
+    $("engineNote").hidden = true;
+    if (location.hash === "#selftest") selfTest();
+  };
+  window.addEventListener("load", function () {
+    try { brython({ debug: 0 }); }
+    catch (e) { $("engineNote").innerHTML = "Python couldn't load (" + esc(e.message) + "). Check your connection and reload."; }
+    setTimeout(function () { if (!ready) $("engineNote").innerHTML = "Python is taking a while to load. If this message stays, reload the page."; }, 15000);
+  });
+
+  // ---------- state ----------
+  function state() { return store.get(mock().id + ":state", { start: null, ended: false }); }
+  function setState(s) { store.set(mock().id + ":state", s); }
+
+  // ---------- rendering ----------
+  function renderMockPicker() {
+    $("mock").innerHTML = MOCKS.map((m, i) => `<option value="${i}">${esc(m.name)}</option>`).join("");
+    $("mock").value = String(mockIdx);
+  }
+  function renderTabs() {
+    $("tabs").innerHTML = mock().questions.map((qq, i) => {
+      const h = store.get(key("hand", i), null);
+      return `<button class="tab" role="tab" aria-selected="${i === qIdx}" data-i="${i}">Q${i + 1} · ${esc(qq.title)} <span class="pts">33 pts</span><span class="state ${h ? "in" : ""}">${h ? "handed in " + h.time : "not handed in"}</span></button>`;
+    }).join("");
+    $("tabs").querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => { qIdx = +b.dataset.i; renderQuestion(); }));
+  }
+  function renderQuestion() {
+    const qq = q();
+    $("spec").innerHTML = `<h2>Question ${qIdx + 1}: ${esc(qq.title)}</h2><div class="meta">${qq.kind === "program" ? "Program · reads input() and prints" : "Function · tests call your function"} · 33 points</div>${qq.spec}`;
+    $("fileName").textContent = `q${qIdx + 1}.py`;
+    $("code").value = store.get(key("draft"), qq.stub);
+    $("stdin").value = store.get(key("stdin"), qq.sample_input || "");
+    $("console").innerHTML = '<span class="dim">Press Run to see your output.</span>';
+    const h = store.get(key("hand"), null);
+    $("handNote").textContent = h ? `Handed in at ${h.time}` : "Not handed in yet";
+    updateGutter();
+    renderTabs();
+  }
+  function updateGutter() {
+    const n = $("code").value.split("\n").length;
+    let s = ""; for (let i = 1; i <= n; i++) s += i + "\n";
+    $("gutter").textContent = s;
+    $("hl").innerHTML = highlight($("code").value) + "\n ";
+    $("code").style.height = "auto";
+    $("code").style.height = Math.max(340, $("code").scrollHeight) + "px";
+  }
+
+  // ---------- timer ----------
+  function fmt(ms) { const t = Math.max(0, Math.ceil(ms / 1000)); return String(Math.floor(t / 60)).padStart(2, "0") + ":" + String(t % 60).padStart(2, "0"); }
+  function updateTimer() {
+    const s = state();
+    const el = $("timer");
+    if (!s.start) { el.textContent = "40:00"; el.className = "timer"; $("startBtn").hidden = false; return; }
+    $("startBtn").hidden = true;
+    if (s.ended) { el.textContent = "Ended"; el.className = "timer out"; return; }
+    const left = s.start + DURATION - Date.now();
+    el.textContent = fmt(left);
+    el.className = "timer" + (left <= 0 ? " out" : left < 5 * 60 * 1000 ? " low" : "");
+    if (left <= 0 && !s.ended) finish("Time's up. Only handed-in code is marked.");
+  }
+  function startTimer() { clearInterval(tick); tick = setInterval(updateTimer, 500); updateTimer(); }
+
+  // ---------- actions ----------
+  $("code").addEventListener("input", () => { store.set(key("draft"), $("code").value); updateGutter(); });
+  $("stdin").addEventListener("input", () => store.set(key("stdin"), $("stdin").value));
+  $("code").addEventListener("keydown", (e) => {
+    const ta = e.target, v = ta.value, a = ta.selectionStart, b = ta.selectionEnd;
+    const lineStart = v.lastIndexOf("\n", a - 1) + 1;
+    if (e.key === "Tab") {
+      e.preventDefault();
+      if (e.shiftKey) {
+        const lead = v.slice(lineStart).match(/^ {1,4}/);
+        if (lead) { ta.setRangeText("", lineStart, lineStart + lead[0].length, "end"); ta.selectionStart = ta.selectionEnd = Math.max(lineStart, a - lead[0].length); }
+      } else { ta.setRangeText("    ", a, b, "end"); }
+      ta.dispatchEvent(new Event("input"));
+    } else if (e.key === "Enter" && !e.isComposing) {
+      e.preventDefault();
+      const line = v.slice(lineStart, a);
+      let ind = line.match(/^ */)[0];
+      if (/:\s*(#.*)?$/.test(line)) ind += "    ";
+      ta.setRangeText("\n" + ind, a, b, "end");
+      ta.dispatchEvent(new Event("input"));
+    } else if (e.key === "Backspace" && a === b && a > lineStart) {
+      const before = v.slice(lineStart, a);
+      if (/^ +$/.test(before) && before.length % 4 === 0) { e.preventDefault(); ta.setRangeText("", a - 4, a, "end"); ta.dispatchEvent(new Event("input")); }
+    }
+  });
+  $("runBtn").addEventListener("click", () => {
+    if (!ready) return;
+    $("console").innerHTML = '<span class="dim">Running…</span>';
+    setTimeout(() => {
+      let r;
+      try { r = JSON.parse(window.pyRun($("code").value, $("stdin").value)); }
+      catch (e) { r = { out: "", err: "The runner failed: " + e.message }; }
+      let html = r.out ? esc(r.out) : '<span class="dim">(no output)</span>';
+      if (r.err) html += (r.out && !r.out.endsWith("\n") ? "\n" : "") + '<span class="err">' + esc(r.err) + "</span>";
+      $("console").innerHTML = html;
+    }, 20);
+  });
+  $("handBtn").addEventListener("click", () => {
+    const s = state();
+    if (s.ended) { $("handNote").textContent = "The test has ended. Start it again to hand in."; return; }
+    const t = new Date();
+    const time = t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    store.set(key("hand"), { code: $("code").value, time });
+    $("handNote").textContent = `Handed in at ${time}`;
+    renderTabs();
+  });
+  $("startBtn").addEventListener("click", () => {
+    const s = state();
+    s.start = Date.now(); s.ended = false; setState(s);
+    showTest(); startTimer();
+  });
+  $("endBtn").addEventListener("click", () => {
+    $("endWrap").innerHTML = '<span class="confirm">End and mark now? <button class="btn primary" id="endYes">End test</button><button class="btn" id="endNo">Keep going</button></span>';
+    $("endYes").addEventListener("click", () => finish("You ended the test."));
+    $("endNo").addEventListener("click", resetEndBtn);
+  });
+  function resetEndBtn() {
+    $("endWrap").innerHTML = '<button class="btn" id="endBtn">End test</button>';
+    $("endBtn").addEventListener("click", () => {
+      $("endWrap").innerHTML = '<span class="confirm">End and mark now? <button class="btn primary" id="endYes">End test</button><button class="btn" id="endNo">Keep going</button></span>';
+      $("endYes").addEventListener("click", () => finish("You ended the test."));
+      $("endNo").addEventListener("click", resetEndBtn);
+    });
+  }
+  $("mock").addEventListener("change", () => { mockIdx = +$("mock").value; store.set("mock", mockIdx); qIdx = 0; boot(); });
+
+  // ---------- marking ----------
+  function grade(code, qq) {
+    if (code === null) return qq.tests.map((t) => ({ ok: false, label: t.label || t.call || ("input:\n" + t.stdin), expect: t.expect, got: "(not handed in)" }));
+    try { return JSON.parse(window.pyGrade(code, qq.kind, JSON.stringify(qq.tests))); }
+    catch (e) { return qq.tests.map((t) => ({ ok: false, label: t.label || t.call || "", expect: t.expect, got: "Runner error: " + e.message })); }
+  }
+  function finish(reason) {
+    resetEndBtn();
+    const s = state(); s.ended = true; if (!s.start) s.start = Date.now() - DURATION; setState(s);
+    clearInterval(tick); updateTimer();
+    renderResults(reason);
+  }
+  function renderResults(reason) {
+    if (!ready) { $("testView").hidden = true; $("resultView").hidden = false; $("resultView").innerHTML = '<p class="loading">Waiting for Python to load before marking…</p>'; const w = setInterval(() => { if (ready) { clearInterval(w); renderResults(reason); } }, 300); return; }
+    $("testView").hidden = true; $("resultView").hidden = false; $("tabs").hidden = true;
+    let total = 0;
+    const blocks = mock().questions.map((qq, i) => {
+      const h = store.get(key("hand", i), null);
+      const res = grade(h ? h.code : null, qq);
+      const passed = res.filter((r) => r.ok).length;
+      const pts = Math.round((33 * passed) / res.length * 10) / 10;
+      total += pts;
+      const rows = res.map((r) => `<tr><td><span class="pill ${r.ok ? "ok" : "bad"}">${r.ok ? "pass" : "fail"}</span></td><td><pre>${esc(r.label)}</pre></td><td><pre>${show(r.expect)}</pre></td><td><pre>${show(r.got)}</pre></td></tr>`).join("");
+      return { pts, html: `<div class="qres"><header><h3>Q${i + 1} · ${esc(qq.title)}</h3><span class="sub">${passed}/${res.length} tests · <strong>${pts}</strong> / 33 · ${h ? "handed in " + h.time : "not handed in"}</span></header>
+        <div class="tests"><table><thead><tr><th>Result</th><th>Test</th><th>Expected</th><th>Your code gave</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <details><summary>Model answer</summary><pre>${highlight(qq.solution)}</pre></details>
+        ${h ? `<details><summary>Your handed-in code</summary><pre>${highlight(h.code)}</pre></details>` : ""}</div>` };
+    });
+    total = Math.round(total * 10) / 10;
+    $("resultView").innerHTML = `<h2>${esc(mock().name)} results</h2><p class="sub">${esc(reason)} Spaces in outputs are shown as <span class="dim">·</span> so you can spot extra or missing ones.</p>
+      <div class="score-row"><div class="score total"><div class="num">${total} / 99</div><div class="l">${Math.round(total / 99 * 100)}% overall</div></div>
+      ${blocks.map((b, i) => `<div class="score"><div class="num">${b.pts}</div><div class="l">Q${i + 1} of 33</div></div>`).join("")}</div>
+      ${blocks.map((b) => b.html).join("")}
+      <div class="actions" style="border:0;padding:0"><button class="btn primary" id="retry">Try this paper again</button><button class="btn" id="review">Back to the questions</button></div>`;
+    $("retry").addEventListener("click", () => {
+      mock().questions.forEach((qq, i) => { store.del(key("hand", i)); store.del(key("draft", i)); store.del(key("stdin", i)); });
+      setState({ start: null, ended: false }); boot();
+    });
+    $("review").addEventListener("click", () => { showTest(); });
+  }
+  function showTest() { $("testView").hidden = false; $("resultView").hidden = true; $("tabs").hidden = false; renderQuestion(); }
+
+  // ---------- self test (#selftest) ----------
+  function selfTest() {
+    const lines = [];
+    MOCKS.forEach((m) => m.questions.forEach((qq, i) => {
+      const sol = JSON.parse(window.pyGrade(qq.solution, qq.kind, JSON.stringify(qq.tests)));
+      const stub = JSON.parse(window.pyGrade(qq.stub, qq.kind, JSON.stringify(qq.tests)));
+      const bad = sol.filter((r) => !r.ok).map((r) => r.label + " => " + r.got);
+      lines.push(`${m.name} Q${i + 1} solution ${sol.filter((r) => r.ok).length}/${sol.length} stub ${stub.filter((r) => r.ok).length} ${bad.join(" | ")}`);
+    }));
+    const r1 = JSON.parse(window.pyRun('print("hi")\nx = int(input("n? "))\nprint(f"{x * 2:.2f}")\nprint(1/0)', "21\n"));
+    const r2 = JSON.parse(window.pyRun('import string\nprint(string.punctuation[:5], round(2.5), "a,b".split(","))\nmatch 3:\n    case 3:\n        print("three")', ""));
+    lines.push("run1 " + JSON.stringify(r1), "run2 " + JSON.stringify(r2));
+    const pre = document.createElement("pre"); pre.id = "selftest"; pre.textContent = lines.join("\n");
+    document.body.appendChild(pre);
+  }
+
+  function boot() {
+    renderMockPicker();
+    const s = state();
+    if (s.ended) { renderResults("This paper has already been marked."); }
+    else { showTest(); }
+    startTimer();
+  }
+  boot();
+})();
+</script>
+
+</html>
