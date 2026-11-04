@@ -1,6 +1,6 @@
 # COMP517 Practice Test
 
-A timed class-test simulator for COMP517 Programming Fundamentals (University of Liverpool). Six practice papers, each with three Python questions and a 40-minute timer. **Run** shows your output only; **Hand in** saves a version; at the end your handed-in code is marked against hidden tests (out of 99), with the model answers.
+A timed class-test simulator for COMP517 Programming Fundamentals (University of Liverpool). Six practice papers, each with three Python questions and a 40-minute timer. **Run** shows your output only; hand-in is automatic, so whatever is in the editor at the end is marked against hidden tests (out of 99), with the model answers.
 
 **Open it:** https://moayidalsubhi.github.io/comp517-practice/
 
