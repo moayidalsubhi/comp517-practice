@@ -11,41 +11,29 @@
 <style>
 /* Layout: exam-room workstation. Sticky test bar (timer + questions), then spec | editor split that stacks on phones. */
 :root {
-  --bg: #f4f6f7;
-  --panel: #ffffff;
-  --ink: #17232b;
-  --muted: #5b6b75;
-  --line: #d6dde1;
-  --accent: #0b6e72;
+  --bg: #2f2f2f;
+  --panel: #404040;
+  --panel-2: #474b50;
+  --ink: #f1f1f1;
+  --muted: #b4b4b4;
+  --line: #5a5a5a;
+  --accent: #3b82f6;
   --accent-ink: #ffffff;
-  --accent-soft: #e0f0f0;
-  --code-bg: #f0f3f4;
-  --editor-bg: #fbfcfc;
-  --gutter: #8b989f;
-  --ok: #1d7a3a;
-  --ok-soft: #e3f3e8;
-  --bad: #b3261e;
-  --bad-soft: #fbe7e5;
-  --warn: #8a5a00;
-  --warn-soft: #fff3d6;
-  --syn-kw: #8a3ffc; --syn-bi: #0b6e72; --syn-str: #a14b00; --syn-num: #b0187a; --syn-com: #6f7d85; --syn-fn: #1a5bc4;
-  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  --accent-soft: #2c3d57;
+  --code-bg: #34383d;
+  --editor-bg: #111827;
+  --gutter: #6b7280;
+  --ok: #4ade80;
+  --ok-soft: #2c4a37;
+  --bad: #f87171;
+  --bad-soft: #4a2c2c;
+  --warn: #fbbf24;
+  --warn-soft: #4a3f22;
+  --syn-kw: #c792ea; --syn-bi: #82aaff; --syn-str: #c3e88d; --syn-num: #f78c6c; --syn-com: #7f8a99; --syn-fn: #ffcb6b;
+  --font-display: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
   --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", Menlo, Consolas, monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0f1619; --panel: #162126; --ink: #e3eaee; --muted: #93a3ac; --line: #2a3a42;
-    --accent: #4fb8b8; --accent-ink: #062224; --accent-soft: #173539; --code-bg: #1c2a30;
-    --editor-bg: #111b1f; --gutter: #5d6e77; --ok: #5cc27d; --ok-soft: #173326; --bad: #f08a80;
-    --bad-soft: #3a1d1b; --warn: #e6b04d; --warn-soft: #3a2e14; --syn-kw: #c7a2ff; --syn-bi: #5fd0c8; --syn-str: #f0b072; --syn-num: #f08fc7; --syn-com: #7f9099; --syn-fn: #8ab8ff; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0f1619; --panel: #162126; --ink: #e3eaee; --muted: #93a3ac; --line: #2a3a42;
-  --accent: #4fb8b8; --accent-ink: #062224; --accent-soft: #173539; --code-bg: #1c2a30;
-  --editor-bg: #111b1f; --gutter: #5d6e77; --ok: #5cc27d; --ok-soft: #173326; --bad: #f08a80;
-  --bad-soft: #3a1d1b; --warn: #e6b04d; --warn-soft: #3a2e14; --syn-kw: #c7a2ff; --syn-bi: #5fd0c8; --syn-str: #f0b072; --syn-num: #f08fc7; --syn-com: #7f9099; --syn-fn: #8ab8ff; color-scheme: dark;
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
@@ -69,6 +57,7 @@ select { font: inherit; color: var(--ink); background: var(--panel); border: 1px
 .btn.primary:hover { filter: brightness(1.08); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.tabs[hidden] { display: none; }
 .tabs { display: flex; gap: 6px; flex-wrap: wrap; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 10px; max-width: 1400px; margin: 0 auto; }
 .tab { border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 6px; padding: 6px 12px; display: flex; gap: 8px; align-items: center; font-size: 14px; }
 .tab[aria-selected="true"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 600; }
@@ -79,10 +68,34 @@ select { font: inherit; color: var(--ink); background: var(--panel); border: 1px
 main { max-width: 1400px; margin: 0 auto; padding-block: 16px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .notice { background: var(--warn-soft); color: var(--ink); border: 1px solid var(--line); border-left: 4px solid var(--warn); border-radius: 6px; padding: 10px 14px; margin-bottom: 14px; font-size: 14px; }
 .notice.info { background: var(--accent-soft); border-left-color: var(--accent); }
-.split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
-@media (max-width: 900px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.qwrap { max-width: 1100px; margin: 0 auto; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.qnav { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.qnav .arrow { width: 46px; height: 46px; border: 1.5px solid var(--muted); border-radius: 6px; background: transparent; color: var(--ink); font-size: 20px; display: grid; place-items: center; }
+.qnav .arrow:disabled { opacity: 0.35; cursor: default; }
+.qnav .arrow:not(:disabled):hover { border-color: var(--ink); }
+.qtitle { justify-self: center; position: relative; min-width: 0; }
+.qtitle > button { background: transparent; border: 0; color: var(--ink); font-weight: 600; font-size: 20px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; justify-content: center; text-align: center; }
+.qtitle .of { color: var(--muted); font-weight: 400; }
+.qtitle .chev { color: var(--muted); font-size: 16px; }
+.qmenu { position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; min-width: 300px; max-width: 90vw; z-index: 4; padding: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+.qmenu button { display: flex; width: 100%; justify-content: space-between; gap: 12px; background: transparent; border: 0; color: var(--ink); padding: 8px 10px; border-radius: 4px; text-align: left; }
+.qmenu button:hover, .qmenu button[aria-current="true"] { background: var(--accent-soft); }
+.qmenu .st { font-size: 12px; color: var(--muted); }
+.qmenu .st.in { color: var(--ok); }
+.qpanel > summary, .codepanel > .phead { list-style: none; display: flex; align-items: center; gap: 10px; padding: 12px 18px; font-size: 22px; font-weight: 600; color: #c9d7ee; }
+.qpanel > summary::-webkit-details-marker { display: none; }
+.qpanel > summary::before { content: "⌄"; font-size: 20px; transform: translateY(-4px); transition: transform 0.15s; }
+.qpanel:not([open]) > summary::before { transform: rotate(-90deg) translateX(4px); }
+.qpanel { border-bottom: 1px solid var(--line); padding: 0; }
+.codepanel { padding: 0 18px 18px; }
+.codepanel > .phead { padding: 12px 0; font-size: 16px; justify-content: space-between; }
+.codepanel > .phead .file { font-family: var(--font-mono); font-weight: 400; color: var(--ink); }
+.codepanel > .phead span:last-child { font-size: 13px; color: var(--muted); font-weight: 400; }
+.feedback { margin: 0 18px 18px; background: var(--panel-2); border-radius: 6px; padding: 14px 18px; display: flex; align-items: center; gap: 10px; font-size: 17px; }
+.feedback .tick { width: 22px; height: 22px; border: 2px solid var(--ok); border-radius: 50%; color: var(--ok); display: grid; place-items: center; font-size: 13px; flex: none; }
+.feedback.none .tick { border-color: var(--muted); color: var(--muted); }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-width: 0; }
-.spec { padding: 16px 20px; }
+.spec { padding: 0 22px 18px; font-size: 16px; }
 .spec h2 { font-family: var(--font-display); font-size: 22px; margin: 0 0 2px; text-wrap: balance; }
 .spec .meta { font-size: 13px; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
 .spec code { background: var(--code-bg); padding: 1px 4px; border-radius: 3px; font-size: 0.92em; }
@@ -95,7 +108,7 @@ main { max-width: 1400px; margin: 0 auto; padding-block: 16px 40px; padding-left
 .work { display: flex; flex-direction: column; }
 .work-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); flex-wrap: wrap; }
 .work-head .file { font-family: var(--font-mono); color: var(--ink); }
-.editor { display: flex; background: var(--editor-bg); min-height: 340px; max-height: 62vh; overflow: auto; }
+.editor { display: flex; background: var(--editor-bg); min-height: 340px; max-height: 62vh; overflow: auto; border: 1px solid #000; border-radius: 6px; }
 .gutter { padding: 12px 8px 12px 12px; text-align: right; color: var(--gutter); font-family: var(--font-mono); font-size: 14px; line-height: 21px; user-select: none; white-space: pre; font-variant-numeric: tabular-nums; flex: none; }
 .layer { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(100%, max-content); }
 .layer > * { grid-area: 1 / 1; margin: 0; border: 0; font-family: var(--font-mono); font-size: 14px; line-height: 21px; padding: 12px 12px 12px 6px; white-space: pre; tab-size: 4; letter-spacing: normal; min-height: 340px; }
@@ -105,7 +118,7 @@ main { max-width: 1400px; margin: 0 auto; padding-block: 16px 40px; padding-left
 .k { color: var(--syn-kw); font-weight: 600; } .b { color: var(--syn-bi); } .s { color: var(--syn-str); }
 .n { color: var(--syn-num); } .c { color: var(--syn-com); font-style: italic; } .f { color: var(--syn-fn); font-weight: 600; }
 .editor:focus-within { box-shadow: inset 0 0 0 2px var(--accent); }
-.io { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 0; border-top: 1px solid var(--line); }
+.io { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 0; margin-top: 12px; border: 1px solid var(--line); border-radius: 6px; }
 @media (max-width: 600px) { .io { grid-template-columns: minmax(0, 1fr); } }
 .io > div { padding: 10px 12px; min-width: 0; }
 .io > div + div { border-left: 1px solid var(--line); }
@@ -115,7 +128,7 @@ main { max-width: 1400px; margin: 0 auto; padding-block: 16px 40px; padding-left
 .console { margin: 0; min-height: 96px; max-height: 260px; overflow: auto; background: var(--code-bg); border-radius: 6px; padding: 6px 8px; font-size: 13.5px; white-space: pre-wrap; word-break: break-word; }
 .console .err { color: var(--bad); }
 .console .dim { color: var(--muted); }
-.actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 12px; border-top: 1px solid var(--line); }
+.actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 12px 0 0; }
 .actions .hint { font-size: 13px; color: var(--muted); margin-left: auto; }
 .confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px; }
 
@@ -153,29 +166,34 @@ details pre { background: var(--code-bg); padding: 10px 12px; border-radius: 6px
     <button class="btn primary" id="startBtn">Start test</button>
     <span id="endWrap"><button class="btn" id="endBtn">End test</button></span>
   </div>
-  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="tabs" role="tablist" id="tabs" hidden></div>
 </div>
 
 <main id="main">
   <div class="notice info" id="intro">
-    <strong>How this works (like the real test):</strong> press <strong>Start test</strong> for a 40-minute timer. <strong>Run</strong> shows only your output, not whether it's right. <strong>Hand in</strong> saves that version; you can hand in again as often as you like. At the end only your <em>handed-in</em> code is marked against the hidden tests, 33 points per question. Exact output matters. Your drafts are kept in this browser.
+    <strong>How this works (like the real test):</strong> press <strong>Start test</strong> for a 40-minute timer. <strong>Check your answer</strong> shows only your output, not whether it's right. <strong>Hand in</strong> saves that version; you can hand in again as often as you like. At the end only your <em>handed-in</em> code is marked against the hidden tests, 33 points per question. Exact output matters. Your drafts are kept in this browser.
   </div>
   <div class="notice" id="engineNote"><span class="loading">Loading Python in your browser (first time takes a few seconds)…</span></div>
-  <section id="testView" class="split">
-    <article class="card spec" id="spec"></article>
-    <div class="card work">
-      <div class="work-head"><span class="file" id="fileName">q1.py</span><span id="savedNote">Draft saved in this browser</span></div>
+  <section id="testView" class="qwrap">
+    <div class="qnav">
+      <button class="arrow" id="prevQ" aria-label="Previous question">←</button>
+      <div class="qtitle"><button id="qtitleBtn" aria-haspopup="true" aria-expanded="false"></button><div class="qmenu" id="qmenu" hidden></div></div>
+      <button class="arrow" id="nextQ" aria-label="Next question">→</button>
+    </div>
+    <details class="qpanel" id="qpanel" open><summary>Question</summary><article class="spec" id="spec"></article></details>
+    <div class="codepanel">
+      <div class="phead"><span class="file" id="fileName">q1.py</span><span id="savedNote">Draft saved in this browser</span></div>
       <div class="editor" id="editorBox"><div class="gutter" id="gutter">1</div><div class="layer"><pre class="hl" id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Your code"></textarea></div></div>
       <div class="io">
         <div><label for="stdin">Input (one line per input() call)</label><textarea id="stdin" spellcheck="false"></textarea></div>
-        <div><label for="console">Output</label><pre class="console" id="console"><span class="dim">Press Run to see your output.</span></pre></div>
+        <div><label for="console">Output</label><pre class="console" id="console"><span class="dim">Press Check your answer to see your output.</span></pre></div>
       </div>
       <div class="actions">
-        <button class="btn" id="runBtn" disabled>Run</button>
+        <button class="btn" id="runBtn" disabled>Check your answer</button>
         <button class="btn primary" id="handBtn">Hand in</button>
-        <span class="hint" id="handNote">Not handed in yet</span>
       </div>
     </div>
+    <div class="feedback none" id="handBox"><span class="tick">✓</span><span id="handNote">Not handed in yet</span></div>
   </section>
   <section id="resultView" class="results" hidden></section>
   <p class="foot">An infinite loop (one that never asks for input and never ends) will freeze this tab; your draft is saved as you type, so just reload. Tab indents 4 spaces, Shift+Tab un-indents, and Enter keeps the indent.</p>
@@ -380,7 +398,26 @@ except ImportError:
     $("mock").innerHTML = MOCKS.map((m, i) => `<option value="${i}">${esc(m.name)}</option>`).join("");
     $("mock").value = String(mockIdx);
   }
+  function renderNav() {
+    const qs = mock().questions;
+    $("qtitleBtn").innerHTML = `${esc(q().title)} <span class="of">(${qIdx + 1} out of ${qs.length})</span> <span class="chev">⌄</span>`;
+    $("prevQ").disabled = qIdx === 0;
+    $("nextQ").disabled = qIdx === qs.length - 1;
+    $("qmenu").innerHTML = qs.map((qq, i) => {
+      const h = store.get(key("hand", i), null);
+      return `<button data-i="${i}" aria-current="${i === qIdx}"><span>${i + 1}. ${esc(qq.title)}</span><span class="st ${h ? "in" : ""}">${h ? "handed in " + h.time : "not handed in"}</span></button>`;
+    }).join("");
+    $("qmenu").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { qIdx = +b.dataset.i; $("qmenu").hidden = true; $("qtitleBtn").setAttribute("aria-expanded", "false"); renderQuestion(); }));
+    const h = store.get(key("hand"), null);
+    $("handBox").className = "feedback" + (h ? "" : " none");
+    $("handNote").textContent = h ? `Handed in at ${h.time}. You can hand in again until the time is up.` : "Not handed in yet";
+  }
+  $("prevQ").addEventListener("click", () => { if (qIdx > 0) { qIdx--; renderQuestion(); } });
+  $("nextQ").addEventListener("click", () => { if (qIdx < mock().questions.length - 1) { qIdx++; renderQuestion(); } });
+  $("qtitleBtn").addEventListener("click", () => { const m = $("qmenu"); m.hidden = !m.hidden; $("qtitleBtn").setAttribute("aria-expanded", String(!m.hidden)); });
+  document.addEventListener("click", (e) => { if (!e.target.closest(".qtitle")) { $("qmenu").hidden = true; $("qtitleBtn").setAttribute("aria-expanded", "false"); } });
   function renderTabs() {
+    renderNav();
     $("tabs").innerHTML = mock().questions.map((qq, i) => {
       const h = store.get(key("hand", i), null);
       return `<button class="tab" role="tab" aria-selected="${i === qIdx}" data-i="${i}">Q${i + 1} · ${esc(qq.title)} <span class="pts">33 pts</span><span class="state ${h ? "in" : ""}">${h ? "handed in " + h.time : "not handed in"}</span></button>`;
@@ -389,13 +426,11 @@ except ImportError:
   }
   function renderQuestion() {
     const qq = q();
-    $("spec").innerHTML = `<h2>Question ${qIdx + 1}: ${esc(qq.title)}</h2><div class="meta">${qq.kind === "program" ? "Program · reads input() and prints" : "Function · tests call your function"} · 33 points</div>${qq.spec}`;
+    $("spec").innerHTML = `<div class="meta">${qq.kind === "program" ? "Program · reads input() and prints" : "Function · tests call your function"} · 33 points</div>${qq.spec}`;
     $("fileName").textContent = `q${qIdx + 1}.py`;
     $("code").value = store.get(key("draft"), qq.stub);
     $("stdin").value = store.get(key("stdin"), qq.sample_input || "");
-    $("console").innerHTML = '<span class="dim">Press Run to see your output.</span>';
-    const h = store.get(key("hand"), null);
-    $("handNote").textContent = h ? `Handed in at ${h.time}` : "Not handed in yet";
+    $("console").innerHTML = '<span class="dim">Press Check your answer to see your output.</span>';
     updateGutter();
     renderTabs();
   }
@@ -466,7 +501,6 @@ except ImportError:
     const t = new Date();
     const time = t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
     store.set(key("hand"), { code: $("code").value, time });
-    $("handNote").textContent = `Handed in at ${time}`;
     renderTabs();
   });
   $("startBtn").addEventListener("click", () => {
@@ -503,7 +537,7 @@ except ImportError:
   }
   function renderResults(reason) {
     if (!ready) { $("testView").hidden = true; $("resultView").hidden = false; $("resultView").innerHTML = '<p class="loading">Waiting for Python to load before marking…</p>'; const w = setInterval(() => { if (ready) { clearInterval(w); renderResults(reason); } }, 300); return; }
-    $("testView").hidden = true; $("resultView").hidden = false; $("tabs").hidden = true;
+    $("testView").hidden = true; $("resultView").hidden = false; 
     let total = 0;
     const blocks = mock().questions.map((qq, i) => {
       const h = store.get(key("hand", i), null);
@@ -529,7 +563,7 @@ except ImportError:
     });
     $("review").addEventListener("click", () => { showTest(); });
   }
-  function showTest() { $("testView").hidden = false; $("resultView").hidden = true; $("tabs").hidden = false; renderQuestion(); }
+  function showTest() { $("testView").hidden = false; $("resultView").hidden = true;  renderQuestion(); }
 
   // ---------- self test (#selftest) ----------
   function selfTest() {
