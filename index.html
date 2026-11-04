@@ -171,7 +171,7 @@ details pre { background: var(--code-bg); padding: 10px 12px; border-radius: 6px
 
 <main id="main">
   <div class="notice info" id="intro">
-    <strong>How this works (like the real test):</strong> press <strong>Start test</strong> for a 40-minute timer. <strong>Check your answer</strong> shows only your output, not whether it's right. <strong>Hand in</strong> saves that version; you can hand in again as often as you like. At the end only your <em>handed-in</em> code is marked against the hidden tests, 33 points per question. Exact output matters. Your drafts are kept in this browser.
+    <strong>How this works (like the real test):</strong> press <strong>Start test</strong> for a 40-minute timer. <strong>Check your answer</strong> shows only your output, not whether it's right. Hand-in is <strong>automatic</strong>: every change you make is handed in straight away, so whatever is in the editor when the time runs out (or you press End test) is marked against the hidden tests, 33 points per question. Exact output matters. Your drafts are kept in this browser.
   </div>
   <div class="notice" id="engineNote"><span class="loading">Loading Python in your browser (first time takes a few seconds)…</span></div>
   <section id="testView" class="qwrap">
@@ -190,10 +190,9 @@ details pre { background: var(--code-bg); padding: 10px 12px; border-radius: 6px
       </div>
       <div class="actions">
         <button class="btn" id="runBtn" disabled>Check your answer</button>
-        <button class="btn primary" id="handBtn">Hand in</button>
       </div>
     </div>
-    <div class="feedback none" id="handBox"><span class="tick">✓</span><span id="handNote">Not handed in yet</span></div>
+    <div class="feedback none" id="handBox"><span class="tick">✓</span><span id="handNote">Not handed in yet: start typing and it hands in automatically</span></div>
   </section>
   <section id="resultView" class="results" hidden></section>
   <p class="foot">An infinite loop (one that never asks for input and never ends) will freeze this tab; your draft is saved as you type, so just reload. Tab indents 4 spaces, Shift+Tab un-indents, and Enter keeps the indent.</p>
@@ -410,7 +409,7 @@ except ImportError:
     $("qmenu").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { qIdx = +b.dataset.i; $("qmenu").hidden = true; $("qtitleBtn").setAttribute("aria-expanded", "false"); renderQuestion(); }));
     const h = store.get(key("hand"), null);
     $("handBox").className = "feedback" + (h ? "" : " none");
-    $("handNote").textContent = h ? `Handed in at ${h.time}. You can hand in again until the time is up.` : "Not handed in yet";
+    $("handNote").textContent = h ? `Handed in automatically at ${h.time}. Keep editing: your latest code is what gets marked.` : "Not handed in yet: start typing and it hands in automatically";
   }
   $("prevQ").addEventListener("click", () => { if (qIdx > 0) { qIdx--; renderQuestion(); } });
   $("nextQ").addEventListener("click", () => { if (qIdx < mock().questions.length - 1) { qIdx++; renderQuestion(); } });
@@ -454,12 +453,19 @@ except ImportError:
     const left = s.start + DURATION - Date.now();
     el.textContent = fmt(left);
     el.className = "timer" + (left <= 0 ? " out" : left < 5 * 60 * 1000 ? " low" : "");
-    if (left <= 0 && !s.ended) finish("Time's up. Only handed-in code is marked.");
+    if (left <= 0 && !s.ended) finish("Time's up. Your latest code for each question was handed in automatically.");
   }
   function startTimer() { clearInterval(tick); tick = setInterval(updateTimer, 500); updateTimer(); }
 
   // ---------- actions ----------
-  $("code").addEventListener("input", () => { store.set(key("draft"), $("code").value); updateGutter(); });
+  $("code").addEventListener("input", () => { store.set(key("draft"), $("code").value); updateGutter(); autoHandIn(); });
+  // Hand-in is automatic: each edit replaces the handed-in copy (until the test has ended).
+  function autoHandIn() {
+    if (state().ended) { $("handNote").textContent = "The test has ended, so changes are no longer handed in. Start it again to try once more."; return; }
+    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    store.set(key("hand"), { code: $("code").value, time });
+    renderNav();
+  }
   $("stdin").addEventListener("input", () => store.set(key("stdin"), $("stdin").value));
   $("code").addEventListener("keydown", (e) => {
     const ta = e.target, v = ta.value, a = ta.selectionStart, b = ta.selectionEnd;
@@ -494,14 +500,6 @@ except ImportError:
       if (r.err) html += (r.out && !r.out.endsWith("\n") ? "\n" : "") + '<span class="err">' + esc(r.err) + "</span>";
       $("console").innerHTML = html;
     }, 20);
-  });
-  $("handBtn").addEventListener("click", () => {
-    const s = state();
-    if (s.ended) { $("handNote").textContent = "The test has ended. Start it again to hand in."; return; }
-    const t = new Date();
-    const time = t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-    store.set(key("hand"), { code: $("code").value, time });
-    renderTabs();
   });
   $("startBtn").addEventListener("click", () => {
     const s = state();
